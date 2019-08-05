@@ -22,6 +22,12 @@ param (
     [String]$ArtifactPath = (Join-Path -Path $PWD -ChildPath out/modules)
 )
 
+$sourcePath = $PWD
+
+if (![String]::IsNullOrEmpty($Env:BUILD_SOURCESDIRECTORY)) {
+    $sourcePath = $Env:BUILD_SOURCESDIRECTORY;
+}
+
 Write-Host -Object "[Pipeline] -- PWD: $PWD" -ForegroundColor Green;
 Write-Host -Object "[Pipeline] -- ArtifactPath: $ArtifactPath" -ForegroundColor Green;
 Write-Host -Object "[Pipeline] -- BuildNumber: $($Env:BUILD_BUILDNUMBER)" -ForegroundColor Green;
@@ -280,7 +286,12 @@ task BuildSite CleanSite, {
 # Synopsis: Publish project site to gh-pages
 task PublishSite CleanSite, {
     git worktree add -b gh-pages -f out/site origin/gh-pages;
-    docfx build --force docs/docfx.json;
+
+    $Env:Path = $Env:Path + ';' + (Join-Path -Path $sourcePath -ChildPath out/wkhtmltopdf)
+
+    exec {
+        out/docfx/docfx build --force docs/docfx.json;
+    }
 
     try {
         Push-Location -Path out/site;
