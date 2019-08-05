@@ -1,0 +1,24 @@
+
+steps:
+
+- task: UniversalPackages@0
+  displayName: 'Download docfx'
+  inputs:
+    command: download
+    vstsFeed: 'Tools'
+    vstsFeedPackage: 'docfx'
+    vstsPackageVersion: 2.43.3
+    downloadDirectory: out/docfx
+
+- task: UniversalPackages@0
+  displayName: 'Download wkhtmltopdf'
+  inputs:
+    command: download
+    vstsFeed: 'Tools'
+    vstsFeedPackage: 'wkhtmltopdf'
+    vstsPackageVersion: 0.12.5
+    downloadDirectory: out/wkhtmltopdf
+
+# Publish site
+- powershell: Invoke-Build PublishSite
+  displayName: 'Publish site'

@@ -23,6 +23,9 @@
             "/docs/scenarios/*/*.rule.yaml"
         ]
     },
+    "files.associations": {
+        "**/.azure-pipelines/**/*.yaml": "azure-pipelines"
+    },
     "[yaml]": {
         "editor.tabSize": 2
     },

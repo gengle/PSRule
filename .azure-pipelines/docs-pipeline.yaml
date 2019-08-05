@@ -1,0 +1,30 @@
+# Azure DevOps
+# Docs CI pipeline for PSRule
+
+variables:
+  version: '0.9.0'
+  buildConfiguration: 'Release'
+  disable.coverage.autogenerate: 'true'
+
+# Use build number format, i.e. 0.1.0-B181101
+name: $(version)-B$(date:yyMM)$(rev:rr)
+
+stages:
+# Docs pipeline
+- stage: Docs
+  displayName: Docs
+  jobs:
+  - job:
+    displayName: Live
+    pool:
+      vmImage: 'vs2017-win2016'
+    variables:
+      isPreRelease: $[contains(variables['Build.SourceBranchName'], '-B')]
+    steps:
+
+    # Install pipeline dependencies
+    - powershell: ./.azure-pipelines/pipeline-deps.ps1
+      displayName: 'Install dependencies'
+
+    # Publish site
+    - template: .azure-pipelines/templates/publish-site.yaml
