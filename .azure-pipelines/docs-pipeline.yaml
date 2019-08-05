@@ -25,6 +25,8 @@ stages:
     variables:
       isPreRelease: $[contains(variables['Build.SourceBranchName'], '-B')]
     steps:
+    - checkout: self
+      persistCredentials: true
 
     # Install pipeline dependencies
     - powershell: ./.azure-pipelines/pipeline-deps.ps1
