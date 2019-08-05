@@ -27,4 +27,4 @@ stages:
       displayName: 'Install dependencies'
 
     # Publish site
-    - template: .azure-pipelines/templates/publish-site.yaml
+    - template: templates/publish-site.yaml
