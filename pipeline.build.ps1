@@ -293,6 +293,13 @@ task PublishSite CleanSite, {
         out/docfx/docfx build --force docs/docfx.json;
     }
 
+    if (![String]::IsNullOrEmpty($Env:BUILD_SOURCESDIRECTORY)) {
+        exec {
+            git config user.email "azuredevops@microsoft.com"
+            git config user.name "Azure DevOps"
+        }
+    }
+
     try {
         Push-Location -Path out/site;
         git add *;
