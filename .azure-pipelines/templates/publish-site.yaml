@@ -22,3 +22,5 @@ steps:
 # Publish site
 - powershell: Invoke-Build PublishSite
   displayName: 'Publish site'
+  env:
+    PAT: $(PAT)

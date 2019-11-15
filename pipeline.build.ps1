@@ -304,7 +304,7 @@ task PublishSite CleanSite, {
         Push-Location -Path out/site;
         git add *;
         git commit -m 'Update documentation';
-        git push;
+        git push "https://$Env:PAT@github.com/BernieWhite/PSRule.git"
     }
     finally {
         Pop-Location;
