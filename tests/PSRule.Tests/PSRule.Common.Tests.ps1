@@ -1057,6 +1057,31 @@ Describe 'Assert-PSRule' -Tag 'Assert-PSRule','Common' {
 
 #endregion Assert-PSRule
 
+
+#region Receive-PSRuleTarget
+
+Describe 'Receive-PSRuleTarget' {
+    Context 'With defaults' {
+        $receivers = New-PSRuleScriptBlockReceiver -ScriptBlock {
+            # Create two objects
+            [PSCustomObject]@{
+                Name = 'TestObject1'
+            }
+            [PSCustomObject]@{
+                Name = 'TestObject2'
+            }
+        }
+
+        It 'Returns objects' {
+            $result = @(Receive-PSRuleTarget -Path (Join-Path -Path $here -ChildPath 'FromFile.Rule.ps1') -Name 'FromFile1' -Limit 2 -Receiver $receivers);
+            $result | Should -Not -BeNullOrEmpty;
+            $result.Length | Should -Be 2;
+            $result[0].Name | Should -Be 'TestObject1';
+            $result[1].Name | Should -Be 'TestObject2';
+        }
+    }
+}
+
 #region Get-PSRule
 
 Describe 'Get-PSRule' -Tag 'Get-PSRule','Common' {

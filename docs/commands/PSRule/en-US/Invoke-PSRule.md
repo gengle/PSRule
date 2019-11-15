@@ -505,3 +505,5 @@ When you use the `-As Summary`. Otherwise, it returns a `RuleRecord` object.
 [Assert-PSRule](Assert-PSRule.md)
 
 [Test-PSRuleTarget](Test-PSRuleTarget.md)
+
+[Receive-PSRuleTarget](Receive-PSRuleTarget.md)

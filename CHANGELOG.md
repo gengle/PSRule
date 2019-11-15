@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Added support for receiving objects from a communications channel instead of only pipeline
+
 ## v0.11.0
 
 What's changed since v0.10.0:

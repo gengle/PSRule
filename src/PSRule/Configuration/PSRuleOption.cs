@@ -246,6 +246,10 @@ namespace PSRule.Configuration
             {
                 option.Execution.LanguageMode = (LanguageMode)Enum.Parse(typeof(LanguageMode), (string)value);
             }
+            if (index.TryGetValue("execution.limit", out value))
+            {
+                option.Execution.Limit = int.Parse(value.ToString());
+            }
             if (index.TryGetValue("execution.inconclusivewarning", out value))
             {
                 option.Execution.InconclusiveWarning = bool.Parse(value.ToString());

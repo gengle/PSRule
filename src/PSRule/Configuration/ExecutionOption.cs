@@ -10,12 +10,14 @@ namespace PSRule.Configuration
         private const LanguageMode DEFAULT_LANGUAGEMODE = Configuration.LanguageMode.FullLanguage;
         private const bool DEFAULT_INCONCLUSIVEWARNING = true;
         private const bool DEFAULT_NOTPROCESSEDWARNING = true;
+        private const int DEFAULT_LIMIT = 0;
 
         internal static readonly ExecutionOption Default = new ExecutionOption
         {
             LanguageMode = DEFAULT_LANGUAGEMODE,
             InconclusiveWarning = DEFAULT_INCONCLUSIVEWARNING,
-            NotProcessedWarning = DEFAULT_NOTPROCESSEDWARNING
+            NotProcessedWarning = DEFAULT_NOTPROCESSEDWARNING,
+            Limit = DEFAULT_LIMIT
         };
 
         public ExecutionOption()
@@ -23,6 +25,7 @@ namespace PSRule.Configuration
             LanguageMode = null;
             InconclusiveWarning = null;
             NotProcessedWarning = null;
+            Limit = null;
         }
 
         public ExecutionOption(ExecutionOption option)
@@ -30,6 +33,7 @@ namespace PSRule.Configuration
             LanguageMode = option.LanguageMode;
             InconclusiveWarning = option.InconclusiveWarning;
             NotProcessedWarning = option.NotProcessedWarning;
+            Limit = option.Limit;
         }
 
         [DefaultValue(null)]
@@ -40,5 +44,8 @@ namespace PSRule.Configuration
 
         [DefaultValue(null)]
         public bool? NotProcessedWarning { get; set; }
+
+        [DefaultValue(null)]
+        public int? Limit { get; set; }
     }
 }

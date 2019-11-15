@@ -291,5 +291,10 @@ namespace PSRule.Pipeline
 
             return result;
         }
+
+        public static ReceivePipelineBuilder Receive()
+        {
+            return new ReceivePipelineBuilder();
+        }
     }
 }

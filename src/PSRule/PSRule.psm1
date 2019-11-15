@@ -352,6 +352,170 @@ function Test-PSRuleTarget {
     }
 }
 
+# .ExternalHelp PSRule-Help.xml
+function New-PSRuleHttpReceiver {
+    [CmdletBinding()]
+    [OutputType([PSRule.Receivers.IPipelineReceiver])]
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseShouldProcessForStateChangingFunctions', '', Justification = 'Creates an in memory object only')]
+    param (
+        # One or more URI endpoints to listen on
+        [Parameter(Mandatory = $True)]
+        [String[]]$Uri
+    )
+
+    process {
+        return [PSRule.Receivers.ReceiverBuilder]::HttpListenerReceiver($Uri);
+    }
+}
+
+# .ExternalHelp PSRule-Help.xml
+function New-PSRuleAzStorageQueueReceiver {
+    [CmdletBinding()]
+    [OutputType([PSRule.Receivers.IPipelineReceiver])]
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseShouldProcessForStateChangingFunctions', '', Justification = 'Creates an in memory object only')]
+    param (
+        # The Azure Storage Account endpoint URI
+        [Parameter(Mandatory = $True)]
+        [String]$Uri,
+
+        # The name of the queue
+        [Parameter(Mandatory = $True)]
+        [String]$QueueName,
+
+        [Parameter(Mandatory = $True)]
+        [SecureString]$SasToken
+    )
+
+    process {
+        return [PSRule.Receivers.ReceiverBuilder]::AzStorageQueueReceiver($Uri, $QueueName, $SasToken);
+    }
+}
+
+function New-PSRuleScriptBlockReceiver {
+    [CmdletBinding()]
+    [OutputType([PSRule.Receivers.IPipelineReceiver])]
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseShouldProcessForStateChangingFunctions', '', Justification = 'Creates an in memory object only')]
+    param (
+        # A script block that returns objects
+        [Parameter(Mandatory = $True)]
+        [ScriptBlock]$ScriptBlock
+    )
+
+    process {
+        return [PSRule.Receivers.ReceiverBuilder]::ScriptBlockReceiver($ScriptBlock);
+    }
+}
+
+# .ExternalHelp PSRule-Help.xml
+function Receive-PSRuleTarget {
+    [CmdletBinding()]
+    param (
+        # A list of paths to check for rule definitions
+        [Parameter(Position = 0)]
+        [Alias('f')]
+        [String[]]$Path = $PWD,
+
+        # Filter to rules with the following names
+        [Parameter(Mandatory = $False)]
+        [Alias('n')]
+        [String[]]$Name,
+
+        [Parameter(Mandatory = $False)]
+        [Hashtable]$Tag,
+
+        [Parameter(Mandatory = $False)]
+        [PSRule.Configuration.PSRuleOption]$Option,
+
+        [Parameter(Mandatory = $True, ValueFromPipeline = $True)]
+        [PSRule.Receivers.IPipelineReceiver[]]$Receiver,
+
+        # Only process the first n objects
+        [Parameter(Mandatory = $False)]
+        [ValidateRange(0, 2147483647)]
+        [System.Int32]$Limit
+    )
+
+    begin {
+        Write-Verbose -Message "[Receive-PSRule] BEGIN::";
+
+        # Get parameter options, which will override options from other sources
+        $optionParams = @{ };
+
+        if ($PSBoundParameters.ContainsKey('Option')) {
+            $optionParams['Option'] =  $Option;
+        }
+
+        # Get an options object
+        $Option = New-PSRuleOption @optionParams;
+
+        # Discover scripts in the specified paths
+        [String[]]$sourceFiles = GetRuleScriptPath -Path $Path -Verbose:$VerbosePreference;
+
+        # Check that some matching script files were found
+        if ($Null -eq $sourceFiles) {
+            Write-Warning -Message LocalizedData.PathNotFound;
+            continue;
+        }
+
+        $isDeviceGuard = IsDeviceGuardEnabled;
+
+        # If DeviceGuard is enabled, force a contrained execution environment
+        if ($isDeviceGuard) {
+            $Option.Execution.LanguageMode = [PSRule.Configuration.LanguageMode]::ConstrainedLanguage;
+        }
+
+        if ($PSBoundParameters.ContainsKey('Limit')) {
+            $Option.Execution.Limit = $Limit;
+        }
+
+        $receiveBuilder = [PSRule.Pipeline.PipelineBuilder]::Receive().Configure($Option);
+        $invokeBuilder = [PSRule.Pipeline.PipelineBuilder]::Invoke().Configure($Option);
+        $invokeBuilder.FilterBy($Name, $Tag);
+        $invokeBuilder.Source($sourceFiles);
+        # $invokeBuilder.Limit($Outcome);
+
+        # if ($PSBoundParameters.ContainsKey('As')) {
+        #     $builder.As($As);
+        # }
+
+        $invokeBuilder.UseCommandRuntime($PSCmdlet.CommandRuntime);
+        $invokeBuilder.UseLoggingPreferences($ErrorActionPreference, $WarningPreference, $VerbosePreference, $InformationPreference);
+        $invokePipeline = $invokeBuilder.Build();
+    }
+
+    process {
+        # Add a receiver
+        $receiveBuilder.Receiver($Receiver);
+    }
+
+    end {
+        try {
+            $pipeline = $receiveBuilder.Build($invokePipeline);
+
+            $pipeline.Start();
+            Write-Verbose -Message "[PSRule] -- Ready to receive objects";
+
+            while ($True) {
+                $pipeline.Process() | ForEach-Object {
+                    $_;
+                }
+
+                if ($pipeline.IsStopping) {
+                    break;
+                }
+
+                Start-Sleep 1;
+            }
+        }
+        finally {
+            $pipeline.Stop();
+            $pipeline.Dispose();
+        }
+
+        Write-Verbose -Message "[Receive-PSRule] END::";
+    }
+}
+
 function Assert-PSRule {
     [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSShouldProcess', '', Justification = 'ShouldProcess is used within CSharp code.')]
     [CmdletBinding(DefaultParameterSetName = 'Input', SupportsShouldProcess = $True)]
@@ -1907,6 +2071,10 @@ Export-ModuleMember -Function @(
     'Get-PSRuleBaseline'
     'New-PSRuleOption'
     'Set-PSRuleOption'
+    'New-PSRuleHttpReceiver'
+    'New-PSRuleAzStorageQueueReceiver'
+    'New-PSRuleScriptBlockReceiver'
+    'Receive-PSRuleTarget'
 )
 
 # EOM

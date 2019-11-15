@@ -50,7 +50,7 @@ namespace PSRule.Pipeline
 
         // Pipeline logging
         private string _LogPrefix;
-        private int _ObjectNumber;
+        internal int ObjectCounter;
 
         // Objects kept for caching and disposal
         private Runspace _Runspace;
@@ -92,7 +92,7 @@ namespace PSRule.Pipeline
 
         private PipelineContext(ILogger logger, PSRuleOption option, HostContext hostContext, TargetBinder binder, BaselineContext baseline, IDictionary<string, ResourceRef> unresolved)
         {
-            _ObjectNumber = -1;
+            ObjectCounter = -1;
             _Logger = logger;
             _RuleTimer = new Stopwatch();
 
@@ -418,7 +418,8 @@ namespace PSRule.Pipeline
         /// </summary>
         public void SetTargetObject(PSObject targetObject)
         {
-            _ObjectNumber++;
+            ObjectCounter++;
+
             TargetObject = targetObject;
             _Binder.Bind(Baseline, targetObject);
         }
@@ -485,7 +486,9 @@ namespace PSRule.Pipeline
         private string GetLogPrefix()
         {
             if (_LogPrefix == null)
-                _LogPrefix = $"[PSRule][R][{_ObjectNumber}][{RuleRecord?.RuleId}]";
+            {
+                _LogPrefix = $"[PSRule][R][{ObjectCounter}][{RuleRecord?.RuleId}]";
+            }
 
             return _LogPrefix ?? string.Empty;
         }

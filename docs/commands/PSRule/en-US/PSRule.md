@@ -45,3 +45,7 @@ Set options to configure PSRule execution.
 ### [Test-PSRuleTarget](Test-PSRuleTarget.md)
 
 Evaluate pipeline objects against matching rules.
+
+### [Receive-PSRuleTarget](Receive-PSRuleTarget.md)
+
+Evaluate received objects against matching rules.

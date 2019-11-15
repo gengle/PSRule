@@ -24,6 +24,8 @@ This project is to be considered a proof-of-concept and not a supported product.
 
   <ItemGroup>
     <PackageReference Include="Manatee.Json" Version="11.0.1" />
+    <PackageReference Include="Microsoft.Azure.KeyVault.Core" Version="3.0.1" />
+    <PackageReference Include="Microsoft.Azure.Storage.Queue" Version="9.4.2" />
     <PackageReference Include="PowerShellStandard.Library" Version="5.1.0" PrivateAssets="All" />
     <PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
     <PackageReference Include="YamlDotNet" Version="5.0.1" />
@@ -35,6 +37,12 @@ This project is to be considered a proof-of-concept and not a supported product.
       <AutoGen>True</AutoGen>
       <DependentUpon>DocumentStrings.resx</DependentUpon>
     </Compile>
+  
+  <ItemGroup Condition="'$(TargetFramework)' == 'net472'">
+    <PackageReference Include="System.Net.Http" Version="4.3.4" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Compile Update="Resources\PSRuleResources.Designer.cs">
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>

@@ -1067,6 +1067,7 @@ execution:
   languageMode: FullLanguage
   inconclusiveWarning: true
   notProcessedWarning: true
+  limit: 5
 
 # Configures input options
 input:
